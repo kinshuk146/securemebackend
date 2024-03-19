@@ -27,6 +27,10 @@ const decrypt = (encryptedHex) => {
 }
 
 router.post('/', async (req, res) => {
+    if(req.body.title.length==0||req.body.password.length==0)
+    {
+        res.send('Please enter the fields')
+    }
     var encryptedHex = encrypt(req.body.password)
     const passwordItem = new Password({
         title: req.body.title,
@@ -34,7 +38,8 @@ router.post('/', async (req, res) => {
         email: req.body.email
     })
     passwordItem.save();
-})
+    res.send('Success')
+});
 
 
 router.get('/', async (req, res) => {
@@ -44,7 +49,7 @@ router.get('/', async (req, res) => {
     const passwordObject = await query.exec();
     var decryptedText = decrypt(passwordObject[0].password)
     res.send(decryptedText);
-})
+});
 
 
 router.get('/all', async (req, res) => {
@@ -59,7 +64,14 @@ router.get('/all', async (req, res) => {
         passwordsObj.push(Obj);
     })
     res.send(passwordsObj);
-})
+});
+
+router.delete('/',async(req,res)=>{
+    console.log(req.query)
+    const query=Password.deleteOne({email:req.query.email,title:req.query.title});
+    const response= await query.exec();
+    res.send(response);
+});
 
 
 export default router
